@@ -1,7 +1,9 @@
 const express = require("express");
 const bycrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../models/userModel");
+const { protect } = require("../middleware/authMiddleware");
+
 
 const router = express.Router();
 
@@ -54,8 +56,8 @@ router.post("/login", async (req, res) => {
 
         const token = jwt.sign(
             {id: user._id },
-            "secretkey",
-            {expiresIn: "1d" }
+            process.env.JWT_SECRET,
+            {expiresIn: "30d" }
         );
 
         res.json({
@@ -68,3 +70,10 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+
+router.get("/profile", protect, (req, res) => {
+  res.json(req.user);
+});
+
+module.exports = router;

@@ -1,3 +1,4 @@
+const asyncHandler = require("express-async-handler");
 const Product = require("../models/productModel");
 
 const addProductReview = async (req, res) => {
@@ -32,4 +33,4 @@ const addProductReview = async (req, res) => {
     }
 };
 
-module.exports = { addProductReview };
+module.exports = { addProductReview, };

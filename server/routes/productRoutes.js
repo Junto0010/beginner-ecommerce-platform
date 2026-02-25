@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Product = require("../models/Product");
+const Product = require("../models/productModel");
 const { protect, admin } = require("../middleware/authMiddleware");
 const {addProductReview } = require("../controllers/productController");
 
@@ -26,7 +26,6 @@ router.get("/", async (req, res) => {
 });
 
 
-module.exports = router;
 
 //update product
 router.put("/:id", async (req, res) => {
@@ -57,3 +56,5 @@ router.delete("/:id", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+module.exports = router;
