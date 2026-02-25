@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product");
+const { protect, admin } = require("../middleware/authMiddleware");
+const {addProductReview } = require("../controllers/productController");
 
-router.post("/",async(req, res) => {
+router.post("/", protect, admin, async (req, res) => {
     try {
         const product = new Product(req.body);
         const savedProduct = await product.save();
@@ -12,6 +14,8 @@ router.post("/",async(req, res) => {
     }
 });
 
+router.post("/:id/reviews", protect, addProductReview);
+
 router.get("/", async (req, res) => {
     try {
         const products = await Product.find();
@@ -20,6 +24,7 @@ router.get("/", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 module.exports = router;
 
