@@ -1,31 +1,39 @@
-import { useEffect, useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import HomeScreen from './screens/homeScreen'
+import ProductScreen from './screens/productScreen'
+import Header from './components/header'
+import { useState } from 'react'
+import CartScreen from './screens/cartScreen'
 
 function App() {
-  const [products, setProducts] = useState([])
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/products')
-      .then((res) => res.json())
-      .then((data) => setProducts(data.products))
-      .catch((err) => console.log(err))
-  }, [])
-
+  const [cartItems, setCartItems] = useState([])
   return (
-    <div style={{ padding: '40px' }}>
-      <h1>My Products</h1>
-
-      {products.length === 0 ? (
-        <h2>No products found</h2>
-      ) : (
-        products.map((product) => (
-          <div key={product._id} style={{ marginBottom: '20px' }}>
-            <h3>{product.name}</h3>
-            <p>${product.price}</p>
-          </div>
-        ))
-      )}
-    </div>
+    <Router>
+      <div style={styles.app}>
+        <Header cartItems={cartItems} />
+        <main style={styles.main}>
+          <Routes>
+            <Route path="/cart" element={<CartScreen cartItems={cartItems} setCartItems={setCartItems} />} />
+            <Route path="/" element={<HomeScreen />} />
+            <Route path="/product/:id" element={<ProductScreen cartItems={cartItems} setCartItems={setCartItems} />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   )
+}
+
+const styles = {
+  app: {
+    fontFamily: 'Arial, sans-serif',
+    backgroundColor: '#f5f5f5',
+    minHeight: '100vh',
+  },
+  main: {
+    width: '90%',
+    maxWidth: '1200px',
+    margin: '40px auto',
+  },
 }
 
 export default App
