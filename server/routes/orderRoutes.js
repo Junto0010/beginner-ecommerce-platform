@@ -1,43 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const Order = require("../models/orderModel");
+
+const {
+  addOrderItems,
+  getMyOrders,
+  getOrderById,
+  updateOrderToPaid,
+  updateOrderToDelivered,
+  getOrders,
+} = require("../controllers/orderController");
+
 const { protect, admin } = require("../middleware/authMiddleware");
 
-router.post("/", protect, async (req, res) => {
-    try {
-        const { orderItems, totalPrice } = req.body;
+router.route("/")
+  .post(protect, addOrderItems)
+  .get(protect, admin, getOrders);
 
-        if(orderItems && orderItems.length === 0) {
-            return res.status(400).json({ message: "No order items" });
-        }
-        const order = new Order({
-            user: req.user._id,
-            orderItems,
-            totalPrice
-        });
-        const createdOrder = await order.save();
-        res.status(201).json(createdOrder);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+router.route("/myorders")
+  .get(protect, getMyOrders);
 
-router.get("/myorders", protect, async (req, res) => {
-    try {
-        const orders = await Order.find({ user: req.user._id });
-        res.json(orders);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+router.route("/:id")
+  .get(protect, getOrderById);
 
-router.get("/", protect, admin, async (req, res) => {
-    try {
-        const orders = await Order.find().populate("user", "name email");
-        res.json(orders);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
+router.route("/:id/pay")
+  .put(protect, updateOrderToPaid);
+
+router.route("/:id/deliver")
+  .put(protect, admin, updateOrderToDelivered);
 
 module.exports = router;
