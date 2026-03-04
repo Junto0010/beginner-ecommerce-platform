@@ -1,93 +1,82 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { Link, useNavigate } from "react-router-dom";
 
 function CartScreen({ cartItems, setCartItems }) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const removeFromCart = (id) => {
+    setCartItems((prev) => prev.filter((item) => item._id !== id));
+  };
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+  const updateQty = (id, qty) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item._id === id ? { ...item, qty: Number(qty) } : item
+      )
+    );
+  };
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
+  const checkoutHandler = () => {
+    navigate("/login?redirect=shipping");
+  };
 
-  const totalItems = cartItems.reduce((acc, item) => acc + item.qty, 0)
-
+  const totalItems = cartItems.reduce((acc, item) => acc + item.qty, 0);
   const totalPrice = cartItems
-    .reduce((acc, item) => acc + item.price * item.qty, 0)
-    .toFixed(2)
+    .reduce((acc, item) => acc + item.qty * item.price, 0)
+    .toFixed(2);
 
   return (
-    <div
-      style={{
-        ...styles.container,
-        flexDirection: isMobile ? 'column' : 'row',
-        padding: isMobile ? '20px' : '40px 60px',
-      }}
-    >
-      {/* LEFT SIDE */}
-      <div style={styles.left}>
+    <div style={{ padding: "20px", display: "flex", gap: "40px", flexWrap: "wrap" }}>
+      
+      {/* LEFT SIDE - CART ITEMS */}
+      <div style={{ flex: "2 1 500px" }}>
         <h1>Your Cart</h1>
 
         {cartItems.length === 0 ? (
           <p>
-            Your cart is empty. <Link to="/">Go Back</Link>
+            Cart is empty. <Link to="/">Go Back</Link>
           </p>
         ) : (
           cartItems.map((item) => (
-            <div key={item._id} style={styles.item}>
-              <h3>{item.name}</h3>
-              <p>Price: ${item.price}</p>
+            <div
+              key={item._id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                borderBottom: "1px solid #ddd",
+                padding: "15px 0",
+                gap: "20px",
+              }}
+            >
+              <img
+                src={item.image}
+                alt={item.name}
+                style={{ width: "80px", borderRadius: "8px" }}
+              />
 
-              <div style={styles.qtyRow}>
-                <button
-                  style={styles.qtyButton}
-                  onClick={() =>
-                    setCartItems(
-                      cartItems.map((x) =>
-                        x._id === item._id && x.qty > 1
-                          ? { ...x, qty: x.qty - 1 }
-                          : x
-                      )
-                    )
-                  }
-                >
-                  −
-                </button>
-
-                <span style={styles.qtyNumber}>{item.qty}</span>
-
-                <button
-                  style={styles.qtyButton}
-                  onClick={() =>
-                    setCartItems(
-                      cartItems.map((x) =>
-                        x._id === item._id
-                          ? { ...x, qty: x.qty + 1 }
-                          : x
-                      )
-                    )
-                  }
-                >
-                  +
-                </button>
+              <div style={{ flex: 1 }}>
+                <Link to={`/product/${item._id}`}>
+                  {item.name}
+                </Link>
+                <p>${item.price}</p>
               </div>
 
-              <p style={{ marginTop: '10px' }}>
-                Subtotal: ${(item.price * item.qty).toFixed(2)}
-              </p>
+              <select
+                value={item.qty}
+                onChange={(e) => updateQty(item._id, e.target.value)}
+              >
+                {[...Array(item.countInStock).keys()].map((x) => (
+                  <option key={x + 1} value={x + 1}>
+                    {x + 1}
+                  </option>
+                ))}
+              </select>
 
               <button
-                style={styles.remove}
-                onClick={() =>
-                  setCartItems(
-                    cartItems.filter((x) => x._id !== item._id)
-                  )
-                }
+                onClick={() => removeFromCart(item._id)}
+                style={{
+                  padding: "6px 10px",
+                  cursor: "pointer",
+                }}
               >
                 Remove
               </button>
@@ -96,105 +85,37 @@ function CartScreen({ cartItems, setCartItems }) {
         )}
       </div>
 
-      {/* RIGHT SIDE */}
-      {cartItems.length > 0 && (
-        <div
+      {/* RIGHT SIDE - SUMMARY */}
+      <div
+        style={{
+          flex: "1 1 300px",
+          border: "1px solid #ddd",
+          padding: "20px",
+          borderRadius: "8px",
+          height: "fit-content",
+        }}
+      >
+        <h2>
+          Subtotal ({totalItems}) items
+        </h2>
+
+        <h3>${totalPrice}</h3>
+
+        <button
+          onClick={checkoutHandler}
+          disabled={cartItems.length === 0}
           style={{
-            ...styles.right,
-            width: isMobile ? '100%' : 'auto',
-            position: isMobile ? 'relative' : 'sticky',
-            top: isMobile ? '0' : '40px',
+            width: "100%",
+            padding: "10px",
+            marginTop: "10px",
+            cursor: "pointer",
           }}
         >
-          <h2>Order Summary</h2>
-
-          <p>Items: {totalItems}</p>
-          <p>Total: ${totalPrice}</p>
-
-          <button
-            style={styles.checkout}
-            onClick={() => navigate('/checkout')}
-          >
-            Proceed To Checkout
-          </button>
-        </div>
-      )}
+          Proceed To Checkout
+        </button>
+      </div>
     </div>
-  )
+  );
 }
 
-const styles = {
-  container: {
-    display: 'flex',
-    gap: '40px',
-    alignItems: 'flex-start',
-    backgroundColor: '#f5f5f5',
-    minHeight: '100vh',
-  },
-
-  left: {
-    flex: 3,
-  },
-
-  right: {
-    flex: 1,
-    backgroundColor: 'white',
-    padding: '30px',
-    borderRadius: '12px',
-    boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
-  },
-
-  item: {
-    backgroundColor: 'white',
-    padding: '25px',
-    marginBottom: '25px',
-    borderRadius: '12px',
-    boxShadow: '0 8px 20px rgba(0,0,0,0.06)',
-  },
-
-  qtyRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px',
-    marginTop: '10px',
-  },
-
-  qtyButton: {
-    padding: '6px 12px',
-    fontSize: '16px',
-    border: '1px solid #ddd',
-    backgroundColor: 'white',
-    cursor: 'pointer',
-    borderRadius: '6px',
-  },
-
-  qtyNumber: {
-    fontWeight: 'bold',
-    fontSize: '18px',
-  },
-
-  remove: {
-    marginTop: '15px',
-    padding: '8px 12px',
-    backgroundColor: '#e53935',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-  },
-
-  checkout: {
-    marginTop: '25px',
-    width: '100%',
-    padding: '14px',
-    backgroundColor: '#111',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-  },
-}
-
-export default CartScreen
+export default CartScreen;

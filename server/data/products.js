@@ -1,7 +1,7 @@
 const products = [
   {
     name: "Airpods Wireless Bluetooth Headphones",
-    image: "/images/airpods.jpg",
+    image: "https://via.placeholder.com/400x300?text=Airpods",
     description: "Bluetooth technology lets you connect it with compatible devices wirelessly.",
     brand: "Apple",
     category: "Electronics",
@@ -12,7 +12,7 @@ const products = [
   },
   {
     name: "iPhone 13 Pro 256GB Memory",
-    image: "/images/phone.jpg",
+    image: "https://via.placeholder.com/400x300?text=iPhone",
     description: "Introducing the iPhone 13 Pro with A15 Bionic chip.",
     brand: "Apple",
     category: "Electronics",
@@ -23,7 +23,7 @@ const products = [
   },
   {
     name: "Cannon EOS 80D DSLR Camera",
-    image: "/images/camera.jpg",
+    image: "https://via.placeholder.com/400x300?text=Camera",
     description: "Capture stunning photos and videos.",
     brand: "Canon",
     category: "Electronics",

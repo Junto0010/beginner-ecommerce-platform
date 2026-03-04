@@ -18,6 +18,8 @@ connectDB();
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 
 // 🔒 SECURITY MIDDLEWARE
 app.use(cors());
@@ -32,6 +34,7 @@ app.use(limiter);
 app.use(express.json());
 app.use(hpp());
 
+app.use("images", express.static(path.join(__dirname, "public/images")));
 
 // 🛣 ROUTES
 app.use("/api/products", productRoutes);

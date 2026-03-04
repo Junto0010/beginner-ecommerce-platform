@@ -1,69 +1,65 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function HomeScreen() {
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
-      .then((res) => res.json())
-      .then((data) => setProducts(data.products))
-      .catch((err) => console.log(err))
-  }, [])
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        setProducts(data.products);
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to load products");
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (loading) return <h2 style={{ padding: "20px" }}>Loading...</h2>;
+  if (error) return <h2 style={{ padding: "20px" }}>{error}</h2>;
 
   return (
-    <div>
-      <h1 style={styles.title}>Latest Products</h1>
+    <div style={{ padding: "20px" }}>
+      <h1>Latest Products</h1>
 
-      {products.length === 0 ? (
-        <h2>No Products Found</h2>
-      ) : (
-        <div style={styles.grid}>
-          {products.map((product) => (
-            <Link
-              key={product._id}
-              to={`/product/${product._id}`}
-              style={styles.card}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+          gap: "20px",
+          marginTop: "20px",
+        }}
+      >
+        {products.map((product) => (
+          <Link
+            key={product._id}
+            to={`/product/${product._id}`}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div
+              style={{
+                border: "1px solid #ddd",
+                padding: "20px",
+                borderRadius: "8px",
+                background: "white",
+                cursor: "pointer",
+              }}
             >
-              <h3 style={styles.name}>{product.name}</h3>
-              <p style={styles.price}>${product.price}</p>
-            </Link>
-          ))}
-        </div>
-      )}
+              <h3>{product.name}</h3>
+              <p>${product.price}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
 
-const styles = {
-  title: {
-    marginBottom: '40px',
-    fontSize: '28px',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '30px',
-  },
-  card: {
-    display: 'block', // IMPORTANT
-    backgroundColor: 'white',
-    padding: '25px',
-    borderRadius: '12px',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
-    transition: 'all 0.2s ease',
-    textDecoration: 'none',
-    cursor: 'pointer',
-  },
-  name: {
-    color: '#111',
-    marginBottom: '10px',
-  },
-  price: {
-    fontWeight: 'bold',
-    fontSize: '18px',
-    color: '#000',
-  },
-}
-
-export default HomeScreen
+export default HomeScreen;
