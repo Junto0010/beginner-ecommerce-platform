@@ -1,41 +1,50 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-function LoginScreen() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
+function RegisterScreen({ setUserInfo }) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const redirect = location.search
-    ? location.search.split("=")[1]
-    : "/";
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  useEffect(() => {
-    const userInfo = localStorage.getItem("userInfo");
-    if (userInfo) {
-      navigate(redirect);
-    }
-  }, [navigate, redirect]);
+  const redirect = new URLSearchParams(location.search).get("redirect");
 
   const submitHandler = (e) => {
     e.preventDefault();
 
-    const userData = {
+    const newUser = {
+      name,
       email,
-      password,
     };
 
-    localStorage.setItem("userInfo", JSON.stringify(userData));
-    navigate(redirect);
+    setUserInfo(newUser);
+    localStorage.setItem("userInfo", JSON.stringify(newUser));
+
+    if (redirect) {
+      navigate(`/${redirect}`);
+    } else {
+      navigate("/");
+    }
   };
 
   return (
     <div className="container mt-4">
-      <h2>Sign In</h2>
+      <h2>Register</h2>
 
       <form onSubmit={submitHandler}>
+        <div className="mb-3">
+          <label>Name</label>
+          <input
+            type="text"
+            className="form-control"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
+
         <div className="mb-3">
           <label>Email Address</label>
           <input
@@ -59,18 +68,11 @@ function LoginScreen() {
         </div>
 
         <button type="submit" className="btn btn-primary">
-          Sign In
+          Register
         </button>
       </form>
-
-      <div className="mt-3">
-        New Customer?{" "}
-        <Link to={redirect ? `/register?redirect=${redirect}` : "/register"}>
-          Register
-        </Link>
-      </div>
     </div>
   );
 }
 
-export default LoginScreen;
+export default RegisterScreen;

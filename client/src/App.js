@@ -1,68 +1,34 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState, useEffect } from "react";
-
-import Header from "./components/header"; // adjust case if needed
+import Header from "./components/header";
 import HomeScreen from "./screens/homeScreen";
-import ProductScreen from "./screens/productScreen";
-import CartScreen from "./screens/cartScreen";
 import LoginScreen from "./screens/loginScreen";
+import RegisterScreen from "./screens/registerScreen";
 import ShippingScreen from "./screens/shippingScreen";
 
 function App() {
-  const [cartItems, setCartItems] = useState(() => {
-    const storedCart = localStorage.getItem("cartItems");
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("darkMode") === "true"
+  );
 
   useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  const [userInfo, setUserInfo] = useState(() => {
-    const storedUser = localStorage.getItem("userInfo");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
-
-  useEffect(() => {
-    localStorage.setItem("userInfo", JSON.stringify(userInfo));
-  }, [userInfo]);
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
 
   return (
     <Router>
-      <Header
-        cartItems={cartItems}
-        userInfo={userInfo}
-        setUserInfo={setUserInfo}
-      />
+      <div className={darkMode ? "bg-dark text-light min-vh-100" : "min-vh-100"}>
+        <Header darkMode={darkMode} setDarkMode={setDarkMode} />
 
-      <Routes>
-        <Route path="/" element={<HomeScreen />} />
-
-        <Route
-          path="/product/:id"
-          element={<ProductScreen setCartItems={setCartItems} />}
-        />
-
-        <Route
-          path="/cart"
-          element={
-            <CartScreen
-              cartItems={cartItems}
-              setCartItems={setCartItems}
-            />
-          }
-        />
-
-        <Route
-          path="/login"
-          element={<LoginScreen setUserInfo={setUserInfo} />}
-        />
-
-        <Route
-          path="/shipping"
-          element={<ShippingScreen userInfo={userInfo} />}
-        />
-      </Routes>
+        <main className="py-3 container">
+          <Routes>
+            <Route path="/" element={<HomeScreen />} />
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/register" element={<RegisterScreen />} />
+            <Route path="/shipping" element={<ShippingScreen />} />
+          </Routes>
+        </main>
+      </div>
     </Router>
   );
 }
